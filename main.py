@@ -150,7 +150,7 @@ class Game:
 
             total = 0
             for i in range(numTimes):
-                temp = fileStuff.calcUpgradeCost(rideIndex, current_level + i + 1)
+                temp = fileStuff.calcUpgradeCost(rideIndex, current_level + i)
                 total += temp
             print(f"You have £{fileStuff.getMoney():,.2f}")
             choice = input(f"This upgrade will cost you £{total:,.2f}\nAre you sure you want to do this? (y/n) ")
