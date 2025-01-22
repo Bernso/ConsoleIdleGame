@@ -4,13 +4,15 @@ import os
 import math
 
 JSON_FILE = 'data.json'
-RIDES = [
-    "Shooting Range",
-    "Haunted House",
-    "Ferris Wheel",
-    "Roller Coaster",
-    "Drop Tower"
+RIDES = [ # Ride name, base price, base earnings
+    ["Shooting Range",  2,  0],
+    ["Haunted House",   5,  5000],
+    ["Ferris Wheel",    10, 50000],
+    ["Roller Coaster",  20, 500000],
+    ["Drop Tower",      40, 5000000]
 ]
+
+
 
 def getTime():
     """Returns the current datetime."""
@@ -70,10 +72,10 @@ def saveAll(methods: list):
 
 
 def convertRidesListIntoProper():
-    """Gets the original rides list of levels and makes it into a dictonary all pretty"""
+    """Gets the original rides list of levels and makes it into a dictionary all pretty"""
     base = getMoneyMethods()
     
-    return {RIDES[i]: base[i] for i in range(len(base))}
+    return {RIDES[i][0]: base[i] for i in range(len(base))}
 
 def getAllRides():
     """Displays all avalible rides to be unlocked"""
@@ -82,7 +84,7 @@ def getAllRides():
     index = 0
     for ride in RIDES:
         index += 1
-        string += f"{index} - {ride} {"(LOCKED)" if index > len(ridesUnlocked) else ''}{"\n" if index != len(RIDES) else ''}"
+        string += f"{index} - {ride[0]} {"(LOCKED)" if index > len(ridesUnlocked) else ''}{"\n" if index != len(RIDES) else ''}"
         
     return string
 
@@ -118,13 +120,7 @@ def moneyAFK(timeSince):
         timeSince: Number of seconds since last played
     """
     # Base earnings per minute (not per second to keep numbers manageable)
-    baseEarnings = {
-        "Shooting Range": 2,      # £2/min base
-        "Haunted House": 5,       # £5/min base
-        "Ferris Wheel": 10,       # £10/min base
-        "Roller Coaster": 20,     # £20/min base
-        "Drop Tower": 40          # £40/min base
-    }
+    
     
     levels = getMoneyMethods()
     current_money = getMoney()
@@ -133,11 +129,11 @@ def moneyAFK(timeSince):
     
     # Calculate earnings for each unlocked ride
     for i in range(len(levels)):
-        ride_name = RIDES[i]
+        #ride_name = RIDES[i][0]
         level = levels[i]
         
         # Base earning calculation
-        base_per_minute = baseEarnings[ride_name]
+        base_per_minute = RIDES[i][1]
         
         # Level multiplier (diminishing returns after level 10)
         level_multiplier = 1 + (level * 0.5 if level <= 10 else 5 + (level - 10) * 0.1)
@@ -172,7 +168,7 @@ def calcUpgradeCost(ride_index, current_level):
         Cost for next upgrade.
     """
     base_prices = getRideUnlockPrice()  # Get unlock prices for all rides
-    ride_name = RIDES[ride_index]
+    ride_name = RIDES[ride_index][0]
     
     # Get unlock price of the ride, defaulting to 100 if not found
     unlock_price = base_prices.get(ride_name, 100)
@@ -181,33 +177,25 @@ def calcUpgradeCost(ride_index, current_level):
     base_cost = max(100, unlock_price / 50)  # Minimum base cost is 100
     
     # Exponential cost scaling with ride-based multiplier
-    return round(base_cost * (1.6 ** (current_level - 1)), 2)
+    return round(base_cost * (1.3 ** (current_level - 1)), 2)
 
 
 def getRideUnlockPrice(ride_index=None):
     """
-    Calculate the price to unlock the next ride.
-    Prices scale exponentially to create meaningful progression goals.
+    Get the unlock price for a ride.
     
     Args:
-        ride_index: Index of the ride being unlocked (0-4)
+        ride_index: Index of the ride (0-4). If None, returns dict of all prices.
     Returns:
-        Price to unlock the ride
+        Price to unlock the ride, or dict of all ride prices
     """
-    base_prices = {
-        "Shooting Range": 0,        # Starting ride
-        "Haunted House": 5000,      # ~1-2 hours of initial gameplay
-        "Ferris Wheel": 50000,      # ~4-6 hours of gameplay
-        "Roller Coaster": 500000,   # ~2-3 days of active gameplay
-        "Drop Tower": 5000000       # ~1-2 weeks of gameplay
-    }
     if ride_index is not None:
-        return base_prices[RIDES[ride_index]]
+        return RIDES[ride_index][2]
     else:
-        return base_prices
+        # Create a dictionary of ride names and their unlock prices
+        return {ride[0]: ride[2] for ride in RIDES}
 
 def upgradeRide(ride_index, times=1):
-    
     data = readJson()
     levels = data["money_methods"]  # Ride levels list
     money = data["money"]
@@ -216,24 +204,29 @@ def upgradeRide(ride_index, times=1):
         print("You haven't unlocked this ride yet!")
         return False
 
-    for _ in range(times):
-        current_level = levels[ride_index]
-        upgrade_cost = calcUpgradeCost(ride_index, current_level)
+    total_cost = 0
+    current_level = levels[ride_index]
+    
+    # Calculate total cost first
+    for i in range(times):
+        upgrade_cost = calcUpgradeCost(ride_index, current_level + i)
+        total_cost += upgrade_cost
 
-        if money < upgrade_cost:
-            print(f"Not enough money to upgrade {RIDES[ride_index]}!")
-            break  # Stop upgrading if out of money
+    # Check if player can afford the total upgrade cost
+    if money < total_cost:
+        print(f"Not enough money to upgrade {RIDES[ride_index][0]}!")
+        return False
 
-        # Deduct cost and increase level
-        money -= upgrade_cost
-        levels[ride_index] += 1
+    # If they can afford it, perform the upgrades
+    money -= total_cost
+    levels[ride_index] += times
 
     # Save the updated data
     data["money_methods"] = levels
     data["money"] = round(money, 2)
     writeJson(data)
 
-    print(f"Upgraded {RIDES[ride_index]} to level {levels[ride_index]}")
+    print(f"Upgraded {RIDES[ride_index][0]} to level {levels[ride_index]}")
     return True
 
 

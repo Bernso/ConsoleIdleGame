@@ -123,7 +123,7 @@ class Game:
                 if choice in options:
                     if choice == 1:
                         self.upgradeRide()
-                    
+
                     elif choice == 2:
                         break
                 else:
@@ -152,10 +152,12 @@ class Game:
             for i in range(numTimes):
                 temp = fileStuff.calcUpgradeCost(rideIndex, current_level + i + 1)
                 total += temp
-
+            print(f"You have £{fileStuff.getMoney():,.2f}")
             choice = input(f"This upgrade will cost you £{total:,.2f}\nAre you sure you want to do this? (y/n) ")
+            fileStuff.clear()
             if choice.lower() == 'y':
                 fileStuff.upgradeRide(rideIndex, numTimes)  # No need to subtract 1 again
+                print("Upgrade complete")
             else:
                 print("Upgrade cancelled")
         except ValueError:
@@ -198,9 +200,9 @@ class Game:
         print(f"\nNext Ride:")
         index = len(fileStuff.getMoneyMethods())
         price = fileStuff.getRideUnlockPrice(index)
-        print(f" {fileStuff.RIDES[index]} - £{price}")
+        print(f" {fileStuff.RIDES[index][0]} - £{price}")
         
-        
+        print(f"You have £{fileStuff.getMoney():,.2f}")
         choice = input("Would you like to buy this ride? (y/n) ")
         
         if choice.lower() == 'n':
@@ -217,7 +219,7 @@ class Game:
             print("Success!")
         
     
-    # Add upgrade system, along with an organised menu, e.g. rides section of the menu for viewing all rides, buying and upgrading
+    # Add an organised menu, e.g. rides section of the menu for viewing all rides, buying and upgrading
         
         
 if __name__ == '__main__':
