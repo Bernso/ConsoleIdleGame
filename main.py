@@ -14,6 +14,7 @@ class Game:
         - Greets the user
         - Opens the main menu
         """
+        fileStuff.clear()   
         self.timeSinceLastStart = fileStuff.calcTime() 
         #print(self.timeSinceLastStart)
         fileStuff.moneyAFK(self.timeSinceLastStart)
@@ -23,7 +24,7 @@ class Game:
 
         
         #logger.info(bold=True, text=f"It has been {self.timeSince["Minutes"]} mins since you have last played")
-        print(f"Welcome to the Console Idle Game!\nIt has been {"new player" if self.timeSince["Seconds"] == 0 else self.timeSince["Seconds"]} seconds since you last played")
+        print(f"Welcome to the Console Idle Game!\nTime since last played:\n- {self.timeSince["Seconds"]} seconds\n- {self.timeSince['Minutes']} minutes\n- {self.timeSince['Hours']} hours\n- {self.timeSince['Days']} days")
         self.mainMenu()
         
         
@@ -40,12 +41,10 @@ class Game:
     
     def mainMenu(self):
         options = {
-            1: "My Rides",
-            2: "All Rides",
-            3: "Buy Rides",
-            4: "View Money",
-            5: "Update Money/Save",
-            6: "Quit (saves aswell)"
+            1: "Ride Menu",
+            2: "View Money",
+            3: "Update Money/Save",
+            4: "Quit (Saves as well)"
         }
         while True:
             print(f"\nMain Menu")
@@ -56,16 +55,12 @@ class Game:
                 choice = int(input("Select an option: "))
                 if choice in options:
                     if choice == 1:
-                        self.showUnlockedRides()                            # Update options
+                        self.rideMenu()                            # Update options
                     elif choice == 2:
-                        self.showAllRides()
-                    elif choice == 3:
-                        self.buyRideMenu()
-                    elif choice == 4:
                         self.viewMoney()
-                    elif choice == 5: # Save and update money
+                    elif choice == 3: # Save and update money
                         self.save()
-                    elif choice == 6:
+                    elif choice == 4:
                         self.save()
                         break
                 else:
@@ -73,26 +68,122 @@ class Game:
             except ValueError as e:
                 logger.warning("Value error")
                 
-        fileStuff.os.system('cls')         
+        fileStuff.clear()        
         print("Bye")
     
+    def rideMenu(self):
+        fileStuff.clear()   
+        options = {
+            1: "Show unlocked rides",
+            2: "Show all rides",
+            3: "Buy a new ride",
+            4: "Upgrade menu",
+            5: "Go back to main menu"
+        }
+        while True:
+            print("\nRide Menu")
+            for key, value in options.items():
+                print(f"{key} - {value}")
+            
+            try:
+                choice = int(input("Select an option: "))
+                if choice in options:
+                    if choice == 1:
+                        self.showUnlockedRides()
+                    elif choice == 2:
+                        self.showAllRides()
+                    elif choice == 3:
+                        self.buyRideMenu()
+                    elif choice == 4:
+                        self.upgradeMenu()
+                    elif choice == 5:
+                        fileStuff.clear()   
+                        break
+                else:
+                    logger.warning("Please enter a valid option.")
+            except ValueError as e:
+                logger.warning("Value error")
+                
+                        
+    
+    def upgradeMenu(self):
+        fileStuff.clear()   
+        options = {
+            1: "Upgrade ride",
+            2: "Return to Ride Menu"
+        }
+        
+        while True:
+            print("\nUpgrade Menu")
+            for key, value in options.items():
+                print(f"{key} - {value}")
+            
+            try:
+                choice = int(input("Select an option: "))
+                if choice in options:
+                    if choice == 1:
+                        self.upgradeRide()
+                    
+                    elif choice == 2:
+                        break
+                else:
+                    logger.warning("Please enter a valid option.")
+            except ValueError as e:
+                logger.warning("Value error")
+            
+            
+    def upgradeRide(self):
+        fileStuff.clear()   
+        self.showUnlockedRides()  # Print out all unlocked rides
+        try:
+            rideIndex = int(input("\nEnter the number related to the ride you want to upgrade: ")) - 1
+            numTimes = int(input("\nHow many times would you like to upgrade? "))
+
+            data = fileStuff.readJson()
+            levels = data["money_methods"]
+
+            if rideIndex < 0 or rideIndex >= len(levels):
+                print("Invalid ride number. Please select a valid option.")
+                return
+
+            current_level = levels[rideIndex]
+
+            total = 0
+            for i in range(numTimes):
+                temp = fileStuff.calcUpgradeCost(rideIndex, current_level + i + 1)
+                total += temp
+
+            choice = input(f"This upgrade will cost you £{total:,.2f}\nAre you sure you want to do this? (y/n) ")
+            if choice.lower() == 'y':
+                fileStuff.upgradeRide(rideIndex, numTimes)  # No need to subtract 1 again
+            else:
+                print("Upgrade cancelled")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+            
     def showUnlockedRides(self):
+        fileStuff.clear()   
         print("\nYour Rides:")
         rides = fileStuff.convertRidesListIntoProper()
 
-        
+        index = 1
         for key, value in rides.items():
-            print(f"- {key}: level {value}")
+            print(f"{index}) {key}: lv. {value}")
+            index += 1
     
     def showAllRides(self):
+        fileStuff.clear()   
         rides = fileStuff.getAllRides()
         print("\nAll unlockable Rides are below:")
         print(rides)
     
     def viewMoney(self):
+        fileStuff.clear()   
         print(f"\nYour balance: £{fileStuff.getMoney():,.2f}") # 2dp and "," serperator
     
     def updateMoney(self):
+        fileStuff.clear()   
         fileStuff.moneyAFK(fileStuff.calcTime())
         fileStuff.saveLastPlayed()
         print("\nMoney Updated")
@@ -100,8 +191,10 @@ class Game:
     def save(self):
         self.updateMoney()
         fileStuff.saveAll(fileStuff.getMoneyMethods())
+        print("\nSaved!")
     
     def buyRideMenu(self):
+        fileStuff.clear()   
         print(f"\nNext Ride:")
         index = len(fileStuff.getMoneyMethods())
         price = fileStuff.getRideUnlockPrice(index)

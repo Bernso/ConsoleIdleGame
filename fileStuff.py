@@ -159,18 +159,30 @@ def moneyAFK(timeSince):
     # For debugging/display purposes, return the earnings
     return new_money - current_money
 
-def calcUpgradeCost(current_level):
+def calcUpgradeCost(ride_index, current_level):
     """
     Calculate cost to upgrade a ride to the next level.
-    Uses exponential scaling to create meaningful progression.
-    
+    Uses exponential scaling based on ride unlock cost.
+
     Args:
-        current_level: Current level of the ride
+        ride_index: Index of the ride (0-4).
+        current_level: Current level of the ride.
+
     Returns:
-        Cost for next upgrade
+        Cost for next upgrade.
     """
-    base_cost = 100  # Base cost for level 1->2
-    return round(base_cost * (1.5 ** (current_level - 1)), 2)
+    base_prices = getRideUnlockPrice()  # Get unlock prices for all rides
+    ride_name = RIDES[ride_index]
+    
+    # Get unlock price of the ride, defaulting to 100 if not found
+    unlock_price = base_prices.get(ride_name, 100)
+    
+    # Base cost is now scaled based on unlock price (divided to keep numbers reasonable)
+    base_cost = max(100, unlock_price / 50)  # Minimum base cost is 100
+    
+    # Exponential cost scaling with ride-based multiplier
+    return round(base_cost * (1.6 ** (current_level - 1)), 2)
+
 
 def getRideUnlockPrice(ride_index=None):
     """
@@ -193,3 +205,37 @@ def getRideUnlockPrice(ride_index=None):
         return base_prices[RIDES[ride_index]]
     else:
         return base_prices
+
+def upgradeRide(ride_index, times=1):
+    
+    data = readJson()
+    levels = data["money_methods"]  # Ride levels list
+    money = data["money"]
+
+    if ride_index >= len(levels):
+        print("You haven't unlocked this ride yet!")
+        return False
+
+    for _ in range(times):
+        current_level = levels[ride_index]
+        upgrade_cost = calcUpgradeCost(ride_index, current_level)
+
+        if money < upgrade_cost:
+            print(f"Not enough money to upgrade {RIDES[ride_index]}!")
+            break  # Stop upgrading if out of money
+
+        # Deduct cost and increase level
+        money -= upgrade_cost
+        levels[ride_index] += 1
+
+    # Save the updated data
+    data["money_methods"] = levels
+    data["money"] = round(money, 2)
+    writeJson(data)
+
+    print(f"Upgraded {RIDES[ride_index]} to level {levels[ride_index]}")
+    return True
+
+
+def clear():
+    os.system('cls')
