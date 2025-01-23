@@ -4,12 +4,13 @@ import os
 import math
 
 JSON_FILE = 'data.json'
-RIDES = [ # Ride name, base price, base earnings
-    ["Shooting Range",  2,  0],
-    ["Haunted House",   5,  5000],
-    ["Ferris Wheel",    10, 50000],
-    ["Roller Coaster",  20, 500000],
-    ["Drop Tower",      40, 5000000]
+RIDES = [ # Ride name,  base price, base earnings
+    ["Shooting Range",  2,          0],
+    ["Haunted House",   5,          5000],
+    ["Ferris Wheel",    10,         50000],
+    ["Roller Coaster",  20,         500000],
+    ["Drop Tower",      40,         6251250],
+    ["Water Ski",       80,         78924590]
 ]
 
 
@@ -22,7 +23,7 @@ def readJson():
     """Reads the JSON file and returns the data, initializing it if not found."""
     if not os.path.exists(JSON_FILE):
         data = {
-            "money_methods": [1], 
+            "money_methods": [1], # Level 1 shooting range for new players
             "last_played": getTime().strftime("%Y-%m-%d %H:%M:%S"),
             "money": 0
         }

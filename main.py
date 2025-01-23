@@ -16,24 +16,24 @@ class Game:
         """
         fileStuff.clear()   
         self.timeSinceLastStart = fileStuff.calcTime() 
-        #print(self.timeSinceLastStart)
-        fileStuff.moneyAFK(self.timeSinceLastStart)
+        gained = fileStuff.moneyAFK(self.timeSinceLastStart) # gained is the amount of money earned offline
         
-        fileStuff.saveLastPlayed()
+        fileStuff.saveLastPlayed()                 
         self.timeSince = self.calcTimeSince(self.timeSinceLastStart)
 
-        
-        #logger.info(bold=True, text=f"It has been {self.timeSince["Minutes"]} mins since you have last played")
-        print(f"Welcome to the Console Idle Game!\nTime since last played:\n- {self.timeSince["Seconds"]} seconds\n- {self.timeSince['Minutes']} minutes\n- {self.timeSince['Hours']} hours\n- {self.timeSince['Days']} days")
+        print(f"Welcome to the Console Idle Game!\nMoney gained: £{gained:,.2f}\n\nTime since last played:\n"
+              f"- {self.timeSince["Seconds"]} seconds\n- {self.timeSince['Minutes']} minutes\n- {self.timeSince['Hours']} hours\n- {self.timeSince['Days']} days\n"
+              )
         self.mainMenu()
         
         
     def calcTimeSince(self, timeSince):
         return {
-            "Days": int(timeSince/((60*60)*24)),
-            "Hours": int(timeSince/(60*60)),
-            "Minutes": int(timeSince/60),
-            "Seconds": int(timeSince)
+            "Days": int(timeSince / ((60 * 60) * 24)),
+            "Hours": int((timeSince / (60 * 60)) % 24),
+            "Minutes": int((timeSince / 60) % 60),
+            "Seconds": int(timeSince % 60),
+            "Full": int(timeSince)
         }
     
     
@@ -64,8 +64,10 @@ class Game:
                         self.save()
                         break
                 else:
+                    fileStuff.clear()
                     logger.warning("Please enter a valid option.")
             except ValueError as e:
+                fileStuff.clear()
                 logger.warning("Value error")
                 
         fileStuff.clear()        
@@ -100,8 +102,10 @@ class Game:
                         fileStuff.clear()   
                         break
                 else:
+                    fileStuff.clear()
                     logger.warning("Please enter a valid option.")
             except ValueError as e:
+                fileStuff.clear()
                 logger.warning("Value error")
                 
                         
@@ -125,10 +129,13 @@ class Game:
                         self.upgradeRide()
 
                     elif choice == 2:
+                        fileStuff.clear()
                         break
                 else:
+                    fileStuff.clear()
                     logger.warning("Please enter a valid option.")
             except ValueError as e:
+                fileStuff.clear()
                 logger.warning("Value error")
             
             
@@ -161,7 +168,8 @@ class Game:
             else:
                 print("Upgrade cancelled")
         except ValueError:
-            print("Invalid input. Please enter a number.")
+            fileStuff.clear()
+            logger.warning("Invalid input. Please enter a number.")
 
             
     def showUnlockedRides(self):
@@ -171,7 +179,7 @@ class Game:
 
         index = 1
         for key, value in rides.items():
-            print(f"{index}) {key}: lv. {value}")
+            print(f"{index} - {key} (lv. {value})")
             index += 1
     
     def showAllRides(self):
@@ -200,23 +208,23 @@ class Game:
         print(f"\nNext Ride:")
         index = len(fileStuff.getMoneyMethods())
         price = fileStuff.getRideUnlockPrice(index)
-        print(f" {fileStuff.RIDES[index][0]} - £{price}")
+        print(f" {fileStuff.RIDES[index][0]} - £{price:,.2f}")
         
-        print(f"You have £{fileStuff.getMoney():,.2f}")
+        print(f"\nYou have £{fileStuff.getMoney():,.2f}")
         choice = input("Would you like to buy this ride? (y/n) ")
         
-        if choice.lower() == 'n':
-            pass
-        
-        if fileStuff.getMoney() < price:
-            print("\nSorry, you do not have enough money to buy this.")
-        else:
-            fileStuff.changeMoney('-', price)
-            base = fileStuff.getMoneyMethods()
-            base.append(1)
+        if choice.lower() == 'y':
             
-            fileStuff.saveMoneyMethods(base)
-            print("Success!")
+        
+            if fileStuff.getMoney() < price:
+                print("\nSorry, you do not have enough money to buy this.")
+            else:
+                fileStuff.changeMoney('-', price)
+                base = fileStuff.getMoneyMethods()
+                base.append(1)
+                
+                fileStuff.saveMoneyMethods(base)
+                print("Success!")
         
     
     # Add an organised menu, e.g. rides section of the menu for viewing all rides, buying and upgrading
