@@ -104,10 +104,12 @@ class Game:
     def viewMoneyStats(self):
         fileStuff.clear()  
         stats = {
-            " a second":   fileStuff.calcMoneyAFK(1),
-            " a minute":   fileStuff.calcMoneyAFK(60),
-            " a hour":  fileStuff.calcMoneyAFK(60 * 60),
-            " a day":   fileStuff.calcMoneyAFK((60 * 60) * 24),
+            " \ second":   fileStuff.calcMoneyAFK(1),
+            " \ minute":   fileStuff.calcMoneyAFK(60),
+            " \ hour":  fileStuff.calcMoneyAFK(60 * 60),
+            " \ day":   fileStuff.calcMoneyAFK((60 * 60) * 24),
+            " \ month": fileStuff.calcMoneyAFK(((60 * 60) * 24) * 30),
+            " \ year": fileStuff.calcMoneyAFK(((60 * 60) * 24) * 365),
         }
          
         print("\nCurrent money stats:")
