@@ -237,3 +237,44 @@ def upgradeRide(ride_index, times=1):
 
 def clear():
     os.system('cls')
+
+def calcMoneyAFK(timeSince):
+    """
+    Calculate money earned while away based on ride levels and time passed.
+    Uses a logarithmic scaling to prevent exponential growth while still
+    rewarding longer idle times.
+    
+    Args:
+        timeSince: Number of seconds since last played
+    """
+    # Base earnings per minute (not per second to keep numbers manageable)
+    
+    
+    levels = getMoneyMethods()
+    minutes_passed = timeSince / 60  # Convert seconds to minutes
+    new_money = 0
+    # Calculate earnings for each unlocked ride
+    for i in range(len(levels)):
+        #ride_name = RIDES[i][0]
+        level = levels[i]
+        
+        # Base earning calculation
+        base_per_minute = RIDES[i][1]
+        
+        # Level multiplier (diminishing returns after level 10)
+        level_multiplier = 1 + (level * 0.5 if level <= 10 else 5 + (level - 10) * 0.1)
+        
+        # Time multiplier (logarithmic scaling to prevent exponential growth)
+        # log10(minutes + 1) provides a smooth curve that grows more slowly over time
+        time_multiplier = 1 + math.log10(minutes_passed + 1) * 0.5
+        
+        # Calculate total earnings for this ride
+        ride_earnings = base_per_minute * level_multiplier * time_multiplier * minutes_passed
+        
+        # Add to total
+        new_money += ride_earnings
+    
+    # Round to 2 decimal places to prevent floating point errors
+    new_money = round(new_money, 2)
+    
+    return new_money

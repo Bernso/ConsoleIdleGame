@@ -41,7 +41,7 @@ class Game:
     def mainMenu(self):
         options = {
             1: "Ride Menu",
-            2: "View Money",
+            2: "Money Menu",
             3: "Update Money/Save",
             4: "Quit (Saves as well)"
         }
@@ -56,7 +56,7 @@ class Game:
                     if choice == 1:
                         self.rideMenu()                            # Update options
                     elif choice == 2:
-                        self.viewMoney()
+                        self.moneyMenu()
                     elif choice == 3: # Save and update money
                         self.save()
                     elif choice == 4:
@@ -71,6 +71,50 @@ class Game:
                 
         fileStuff.clear()        
         print("Bye")
+        
+    def moneyMenu(self):
+        fileStuff.clear()
+        options = {
+            1: "View money",
+            2: "Update Money",
+            3: "Money AFK stats",
+            4: "Go back to main menu"
+        }
+        while True:
+            print(f"\nMoney Menu")
+            for key, value in options.items():
+                print(f"{key} - {value}")
+            
+            try:
+                choice = int(input("Select an option: "))
+                if choice in options:
+                    if choice == 1:
+                        self.viewMoney()
+                    elif choice == 2:
+                        self.save()
+                    elif choice == 3:
+                        self.viewMoneyStats()
+                    elif choice == 4:
+                        self.save()
+                        break
+            except ValueError as e:
+                fileStuff.clear()
+                logger.warning("Value error")
+    
+    def viewMoneyStats(self):
+        fileStuff.clear()  
+        stats = {
+            " a second":   fileStuff.calcMoneyAFK(1),
+            " a minute":   fileStuff.calcMoneyAFK(60),
+            " a hour":  fileStuff.calcMoneyAFK(60 * 60),
+            " a day":   fileStuff.calcMoneyAFK((60 * 60) * 24),
+        }
+         
+        print("\nCurrent money stats:")
+        
+        for key, value in stats.items():
+            print(f"- £{value:,.2f}{key}")
+            
     
     def rideMenu(self):
         fileStuff.clear()   
