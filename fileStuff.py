@@ -10,7 +10,12 @@ RIDES = [ # Ride name,  base price, base earnings
     ["Ferris Wheel",    10,         50000],
     ["Roller Coaster",  20,         500000],
     ["Drop Tower",      40,         6251250],
-    ["Water Ski",       80,         78924590]
+    ["Water Ski",       80,         78924590],
+    ["Bumper Cars",     150,        95000000],
+    ["Log Flume",       300,        120000000],
+    ["Giant Swing",     600,        1800000000],
+    ["Inverted Coaster",1200,       25000000000],
+    ["Flying Theatre",  2500,       500000000000]
 ]
 
 
@@ -153,8 +158,7 @@ def moneyAFK(timeSince):
     new_money = round(new_money, 2)
     changeMoney('=', new_money)
     
-    # For debugging/display purposes, return the earnings
-    return new_money - current_money
+    return new_money - current_money # The difference
 
 def calcUpgradeCost(ride_index, current_level):
     """

@@ -1,4 +1,3 @@
-import math
 import fileStuff
 import boLogger
 logger = boLogger.Logging()
